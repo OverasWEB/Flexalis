@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flexcalis</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            margin: 70px 15px;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+        }
+
+        .container {
+            display: block;
+            background: #2c3e50;
+            border-radius: 10px;
+            padding: 1rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 600px;
+        }
+
+        h1 {
+            position: sticky;
+            top: 0;
+            font-size: 2rem;
+            color: #ecf0f1;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+            z-index: 99;
+        }
+
+        h2 {
+            text-align: center;
+            color: rgba(236, 240, 241, 0.8);
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 50px;
+        }
+
+        input {
+            padding: 10px;
+            border: none;
+            outline: none;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background: linear-gradient(to right, #ff6f61, #de6262);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:active {
+            transform: scale(1.1);
+            background: linear-gradient(to right, #ffa29a, #fe8d8d);
+        }
+
+        .output-container {
+            margin-bottom: 50px;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+            opacity: 1;
+            animation: slideDown 1s ease-in-out;
+            position: relative;
+            text-align: left;
+            margin-bottom: 10px;
+        }
+
+        .item-wrapper {
+            display: flex;
+            align-items: center;
+            background-color: #e0e0e0;
+            padding: 5px 10px;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+        .item-number {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 3px;
+        }
+
+        .item-day {
+            color: #000;
+            font-weight: normal;
+        }
+
+        .item-text {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        @keyframes slideDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fading-out {
+            animation: fadeOut 0.5s forwards;
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Flexcalis</h1>
+        <div class="input-container">
+            <input type="text" id="task-input" placeholder="Input your progress...">
+            <button onclick="addTask()">OK</button>
+        </div>
+        <h2><u>Progress Done</u></h2>
+        <div class="output-container" id="task-output"></div>
+    </div>
+
+    <script>
+        let taskCounter = 0;
+
+        // Fungsi untuk memuat tugas dari localStorage saat halaman dimuat
+        function loadTasks() {
+            // Ambil data tugas dari localStorage, jika tidak ada, gunakan array kosong
+            const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            // Tambahkan setiap tugas ke DOM
+            tasks.forEach(task => {
+                addTaskToDOM(task.text, task.day, task.number);
+                // Perbarui taskCounter untuk nomor tugas berikutnya
+                taskCounter = Math.max(taskCounter, task.number);
+            });
+        }
+
+        // Fungsi untuk menyimpan semua tugas ke localStorage
+        function saveTasks() {
+            // Ambil semua elemen tugas di DOM dan simpan data mereka dalam array
+            const tasks = [];
+            document.querySelectorAll('.item').forEach(item => {
+                const number = parseInt(item.querySelector('.item-number').textContent);
+                const day = item.querySelector('.item-day').textContent;
+                const text = item.querySelector('.item-text').textContent;
+                tasks.push({ number, day, text });
+            });
+            // Simpan array tugas sebagai JSON di localStorage
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Fungsi untuk menambahkan tugas baru ke DOM
+        function addTask() {
+            const taskInput = document.getElementById('task-input');
+            const taskText = taskInput.value;
+            // Hanya tambahkan tugas jika input tidak kosong
+            if (taskText.trim() === '') return;
+
+            taskCounter++;
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const currentDay = days[new Date().getDay()];
+
+            addTaskToDOM(taskText, currentDay, taskCounter);
+            saveTasks();
+
+            // Reset input
+            taskInput.value = '';
+        }
+
+        // Fungsi untuk membuat elemen tugas dan menambahkannya ke DOM
+        function addTaskToDOM(taskText, currentDay, taskCounter) {
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'item';
+            taskDiv.innerHTML = `
+                <div class="item-wrapper">
+                <div class="item-number">${taskCounter}</div>
+                <div class="item-day">${currentDay}</div>
+                </div>
+                <div class="item-text">${taskText}</div>
+            `;
+            taskDiv.onclick = () => confirmRemove(taskDiv);
+
+            const taskOutput = document.getElementById('task-output');
+            taskOutput.prepend(taskDiv);
+        }
+
+        // Fungsi untuk mengkonfirmasi dan menghapus tugas
+        function confirmRemove(taskDiv) {
+            const confirmDelete = confirm('Apakah Anda yakin ingin menghapus latihan ini?');
+            if (confirmDelete) {
+                taskDiv.classList.add('fading-out');
+                setTimeout(() => {
+                    taskDiv.remove();
+                    saveTasks();
+                }, 500); // Durasi dihapus 0.5s
+            }
+        }
+
+        // Muat tugas saat halaman dimuat
+        window.onload = loadTasks;
+    </script>
+
+</body>
+
+</html>
